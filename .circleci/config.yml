@@ -1,0 +1,25 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: docker:17.05.0-ce-git
+    working_directory: ~/circleci-sencha-5
+
+    branches:
+      only:
+        - master
+        - develop
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build application Docker image
+          command: |
+            docker build -f Dockerfile -t circleci-sencha-5 .
+      - deploy:
+          name: Push Docker image
+          command: |
+              login="docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS"
+              ${login}
+              docker tag circleci-sencha-5 easymetrics/circleci-sencha-5
+              docker push easymetrics/circleci-sencha-5
